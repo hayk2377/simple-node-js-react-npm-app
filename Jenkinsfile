@@ -1,21 +1,27 @@
 pipeline {
-    agent any
+    agent 
     stages {
-        stage('Build') { 
-            steps {
-                sh 'npm install' 
-            }
-        }
+
         stage('Test') {
             steps {
-                sh './jenkins/scripts/test.sh'
+                // Run tests using Docker Compose
+                sh 'docker-compose run --rm app npm test -- --watchAll=false'
             }
         }
-        stage('Deliver') {
+        stage('Cleanup') {
             steps {
-                sh './jenkins/scripts/deliver.sh'
+                // Clean up containers, volumes, and networks
+                sh 'docker-compose down --volumes --remove-orphans'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                // Deploy the application
+                sh 'docker-compose up'
+                // Wait for user input before proceeding
                 input message: 'Finished using the web site? (Click "Proceed" to continue)'
-                sh './jenkins/scripts/kill.sh'
+                // Stop the application after confirmation
+                sh 'docker-compose down'
             }
         }
     }
