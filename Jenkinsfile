@@ -17,7 +17,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 // Deploy the application
-                bat 'docker-compose up'
+                bat 'docker-compose up -d'
                 // Wait for user input before proceeding
                 input message: 'Finished using the web site? (Click "Proceed" to continue)'
                 // Stop the application after confirmation
