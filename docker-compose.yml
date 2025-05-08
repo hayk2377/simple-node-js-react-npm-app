@@ -10,4 +10,4 @@ services:
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
-    command: ["npm", "start"] # Default command to start the app
+    command: ["npm", "start", "--", "--watchAll=false"]
