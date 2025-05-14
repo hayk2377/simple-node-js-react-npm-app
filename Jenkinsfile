@@ -20,12 +20,12 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
-            steps {
-                sh 'docker compose up -d'
-                input message: 'Finished using the web site? (Click "Proceed" to continue)'
-                sh 'docker compose down'
-            }
+        // stage('Deploy') {
+        //     steps {
+        //         sh 'docker compose up -d'
+        //         input message: 'Finished using the web site? (Click "Proceed" to continue)'
+        //         sh 'docker compose down'
+        //     }
         }
     }
 }
