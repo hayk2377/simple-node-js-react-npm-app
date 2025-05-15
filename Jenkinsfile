@@ -21,18 +21,27 @@ pipeline {
         }
     }
 
-    post {
-        success {
-            githubNotify(credentialsId: 'github-token', commitSha: "${env.GIT_COMMIT}", status: 'SUCCESS')
+        stage('Publish Checks') {
+            steps {
+                script {
+                    def checkResult = 'SUCCESS' // Default to success
+
+                    if (currentBuild.result == 'FAILURE') {
+                        checkResult = 'FAILURE'
+                    } else if (currentBuild.result == 'UNSTABLE') {
+                        checkResult = 'COMPLETED_WITH_ANNOTATIONS' // Or another appropriate status
+                    } else if (currentBuild.result == 'ABORTED') {
+                        checkResult = 'CANCELLED'
+                    }
+
+                    publishChecks(
+                        name: 'Jenkins Build',
+                        title: 'Build Status',
+                        summary: "Jenkins build ${currentBuild.result}",
+                        conclusion: checkResult.replace('SUCCESS', 'SUCCESS').replace('FAILURE', 'FAILURE').replace('COMPLETED_WITH_ANNOTATIONS', 'NEUTRAL').replace('CANCELLED', 'CANCELLED'),
+                        credentialsId: 'github-pat-credential' 
+                    )
+                }
+            }
         }
-        failure {
-            githubNotify(credentialsId: 'github-token', commitSha: "${env.GIT_COMMIT}", status: 'FAILURE')
-        }
-        unstable {
-            githubNotify(credentialsId: 'github-token', commitSha: "${env.GIT_COMMIT}", status: 'UNSTABLE')
-        }
-        aborted {
-            githubNotify(credentialsId: 'github-token', commitSha: "${env.GIT_COMMIT}", status: 'ABORTED')
-        }
-    }
 }
