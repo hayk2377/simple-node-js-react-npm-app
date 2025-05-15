@@ -19,9 +19,8 @@ pipeline {
                 sh 'docker-compose down --volumes --remove-orphans'
             }
         }
-    }
 
-        stage('Publish Checks') {
+        stage('Publish Checks') { // This needs to be inside the 'stages' block
             steps {
                 script {
                     def checkResult = 'SUCCESS' // Default to success
@@ -29,7 +28,7 @@ pipeline {
                     if (currentBuild.result == 'FAILURE') {
                         checkResult = 'FAILURE'
                     } else if (currentBuild.result == 'UNSTABLE') {
-                        checkResult = 'COMPLETED_WITH_ANNOTATIONS' // Or another appropriate status
+                        checkResult = 'NEUTRAL' // Using 'NEUTRAL' for COMPLETED_WITH_ANNOTATIONS
                     } else if (currentBuild.result == 'ABORTED') {
                         checkResult = 'CANCELLED'
                     }
@@ -38,10 +37,11 @@ pipeline {
                         name: 'Jenkins Build',
                         title: 'Build Status',
                         summary: "Jenkins build ${currentBuild.result}",
-                        conclusion: checkResult.replace('SUCCESS', 'SUCCESS').replace('FAILURE', 'FAILURE').replace('COMPLETED_WITH_ANNOTATIONS', 'NEUTRAL').replace('CANCELLED', 'CANCELLED'),
-                        credentialsId: 'github-pat-credential' 
+                        conclusion: checkResult,
+                        credentialsId: 'github-pat-credential'
                     )
                 }
             }
         }
+    }
 }
