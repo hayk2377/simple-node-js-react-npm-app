@@ -2,11 +2,11 @@ pipeline {
     agent any
 
     stages {
-        // stage('Checkout') {
-        //     steps {
-        //         checkout scm
-        //     }
-        // }
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
 
         stage('Test') {
             steps {
@@ -19,13 +19,20 @@ pipeline {
                 sh 'docker-compose down --volumes --remove-orphans'
             }
         }
+    }
 
-        // stage('Deploy') {
-        //     steps {
-        //         sh 'docker compose up -d'
-        //         input message: 'Finished using the web site? (Click "Proceed" to continue)'
-        //         sh 'docker compose down'
-        //     }
-        //}
+    post {
+        success {
+            githubNotify(credentialsId: 'github-token', commitSha: "${env.GIT_COMMIT}", status: 'SUCCESS')
+        }
+        failure {
+            githubNotify(credentialsId: 'github-token', commitSha: "${env.GIT_COMMIT}", status: 'FAILURE')
+        }
+        unstable {
+            githubNotify(credentialsId: 'github-token', commitSha: "${env.GIT_COMMIT}", status: 'UNSTABLE')
+        }
+        aborted {
+            githubNotify(credentialsId: 'github-token', commitSha: "${env.GIT_COMMIT}", status: 'ABORTED')
+        }
     }
 }
