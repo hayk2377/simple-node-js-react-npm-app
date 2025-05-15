@@ -38,7 +38,7 @@ pipeline {
                         title: 'Build Status',
                         summary: "Jenkins build ${currentBuild.result}",
                         conclusion: checkResult,
-                        credentialsId: 'github-pat-credential'
+                        credentialsId: 'github-token'
                     )
                 }
             }
